@@ -29,7 +29,7 @@ namespace excelImportAsp
             String strFileNmae = "StudentRecords.xlsx";
             String strSheetName = "StudentDetails";
             String path = Server.MapPath("Import") + "\\" + strFileNmae;
-            excelConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path + ";Extended Properties=Excel 12.0;HDR=Yes;IMEX=2";
+            excelConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path + ";Extended Properties='Excel 12.0;HDR=Yes;IMEX=2'";
         
             OleDbConnection excelConnection = new OleDbConnection(excelConnectionString);
             OleDbCommand cmd = new OleDbCommand("Select * from [" + strSheetName + "$]", excelConnection);
@@ -41,8 +41,16 @@ namespace excelImportAsp
             string strServer = ConfigurationManager.ConnectionStrings["StudentConnectionString"].ToString();
 
             SqlBulkCopy sqlBulk = new SqlBulkCopy(strServer);
-            
+            sqlBulk.DestinationTableName = "StudentDetails";
+            sqlBulk.ColumnMappings.Add("Roll No", "RollNo");
+            sqlBulk.ColumnMappings.Add("Student Name", "Name");
+            sqlBulk.ColumnMappings.Add("Department", "Department");
+            sqlBulk.ColumnMappings.Add("Section", "Section");
+            sqlBulk.WriteToServer(dReader);
 
+            excelConnection.Close();
+            lbl_Message.Text = "Your file data has been successfully uploaded";
+            lbl_Message.Visible = true;
 
         }
     }
