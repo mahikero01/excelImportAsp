@@ -14,6 +14,9 @@
             <asp:FileUpload ID="FileUpload1" runat="server" />
 
             <asp:Button ID="btnUpload" runat="server" Text="SQL Bulk Upload" OnClick="btnUpload_Click" />
+            
+            <asp:Button ID="Button1" runat="server" Text="Export" />
+
 
         </p>
 

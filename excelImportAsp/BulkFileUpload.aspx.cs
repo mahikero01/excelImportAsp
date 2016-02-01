@@ -7,6 +7,9 @@ using System.Web.UI.WebControls;
 using System.Data.SqlClient;
 using System.Data.OleDb;
 using System.Configuration;
+using System.Data;
+using ClosedXML.Excel;
+using System.IO;
 
 namespace excelImportAsp
 {
@@ -24,6 +27,60 @@ namespace excelImportAsp
             ExcelBulkUpload();
         }
 
+        protected void exportExcel(object sender, EventArgs e) {
+            
+            string strServer = ConfigurationManager.ConnectionStrings["StudentConnectionString"].ToString();
+
+            using (SqlConnection con = new SqlConnection(strServer)) 
+            {
+
+                using (SqlCommand cmd = new SqlCommand("SELECT * FROM StudentDetails")) 
+                {
+                
+                    using (SqlDataAdapter sda = new SqlDataAdapter()) 
+                    {
+
+                        cmd.Connection = con;
+                        sda.SelectCommand = cmd;
+                        using (DataTable dt = new DataTable())
+                        {
+
+                            sda.Fill(dt);
+                            using (XLWorkbook wb = new XLWorkbook()) 
+                            {
+
+                                wb.Worksheets.Add(dt, "CustomersRico");
+
+                                Response.Clear();
+                                Response.Buffer = true;
+                                Response.Charset = "";
+                                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+                                Response.AddHeader("content-disposition", "attachment; filename=SqlExport.xlsx");
+
+                                using (MemoryStream MyMemoryStream = new MemoryStream())
+                                {
+                                
+                                    wb.SaveAs(MyMemoryStream);
+                                    MyMemoryStream.WriteTo(Response.OutputStream);
+                                    Response.Flush();
+                                    Response.End();
+
+
+                                }
+
+                            }
+                        
+                        }
+
+                    }
+
+                }
+            
+            }
+
+        }
+
         private void ExcelBulkUpload() 
         {
             if (FileUpload1.HasFile)
@@ -37,7 +94,8 @@ namespace excelImportAsp
                     //string strFileNmae = "StudentRecords.xlsx";
                     string strSheetName = "StudentDetails";
                     //String path = Server.MapPath("Import") + "\\" + strFileNmae;
-                    excelConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path + ";Extended Properties='Excel 12.0;HDR=Yes;IMEX=2'";
+                    excelConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + 
+                            path + ";Extended Properties='Excel 12.0;HDR=Yes;IMEX=2'";
 
                     OleDbConnection excelConnection = new OleDbConnection(excelConnectionString);
                     OleDbCommand cmd = new OleDbCommand("Select * from [" + strSheetName + "$]", excelConnection);
@@ -66,5 +124,6 @@ namespace excelImportAsp
                 }
             }
         }
+
     }
 }
