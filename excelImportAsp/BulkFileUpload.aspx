@@ -11,6 +11,7 @@
     <div>
         <h3>Code Scratcher</h3>
         <p>
+            <asp:FileUpload ID="FileUpload1" runat="server" />
 
             <asp:Button ID="btnUpload" runat="server" Text="SQL Bulk Upload" OnClick="btnUpload_Click" />
 
